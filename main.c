@@ -10,7 +10,13 @@ bool is_non_newline_whitespace(char s) {
     switch (s) {
         case ' ':
             return true;
+        case '\f':
+            return true;
+        case '\r':
+            return true;
         case '\t':
+            return true;
+        case '\v':
             return true;
         default:
             return false;
