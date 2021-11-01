@@ -23,6 +23,26 @@ bool is_non_newline_whitespace(char s) {
     }
 }
 
+char *realloc_whitespace_buffer(char *buf, size_t buf_size, bool larger) {
+    if (larger) {
+        // Make the array larger
+        buf_size = buf_size + WS_BUF_SIZE * sizeof(char);
+    } else {
+        // Reset back to initial size
+        buf_size = WS_BUF_SIZE;
+        buf[0] = '\0';
+    }
+    buf = realloc(buf, buf_size);
+
+    if (buf == NULL) {
+        fprintf(stderr,
+                "Failed to resize whitespace buffer; "
+                "exiting.");
+        exit(EXIT_FAILURE);
+    }
+    return buf;
+}
+
 int main() {
     // Single char from stdin
     char in;
@@ -33,8 +53,8 @@ int main() {
 
     // Character array for storing potentially-printed whitespace that
     // appears in the middle of a line
-    char* ws_buf;
-    int buf_size = WS_BUF_SIZE * sizeof(char);
+    char *ws_buf;
+    size_t buf_size = WS_BUF_SIZE * sizeof(char);
     ws_buf = malloc(buf_size);
 
     while (read(STDIN_FILENO, &in, 1) > 0) {
@@ -50,15 +70,9 @@ int main() {
 
                 // But first, we'll check the size of the buffer and
                 // realloc if need be.
-                if ((int)strlen(ws_buf) + 1 >= buf_size) {
+                if (strlen(ws_buf) + 1 >= buf_size) {
                     buf_size = buf_size + WS_BUF_SIZE * sizeof(char);
-                    ws_buf = realloc(ws_buf, buf_size);
-                    if (ws_buf == NULL) {
-                        fprintf(stderr,
-                                "Failed to resize whitespace buffer; "
-                                "exiting.");
-                        return EXIT_FAILURE;
-                    }
+                    ws_buf = realloc_whitespace_buffer(ws_buf, buf_size, true);
                 }
 
                 strcat(ws_buf, &in);
@@ -68,14 +82,14 @@ int main() {
             // at the beginning of the whitespace buffer, and reset
             // the at_line_begin flag to true.
             printf("\n");
-            ws_buf[0] = '\0';
+            ws_buf = realloc_whitespace_buffer(ws_buf, 0, false);
             at_line_begin = true;
 
         } else {
             // Hit a non-whitespace character, so print the whitespace
             // buffer and put a null terminator at its beginning.
             printf("%s", ws_buf);
-            ws_buf[0] = '\0';
+            ws_buf = realloc_whitespace_buffer(ws_buf, 0, false);
 
             // And now print the character from stdin itself.
             printf("%s", &in);
