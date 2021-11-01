@@ -91,6 +91,7 @@ int main(int argc, char const **argv) {
     char *ws_buf;
     size_t buf_size = WS_BUF_SIZE * sizeof(char);
     ws_buf = malloc(buf_size);
+    ws_buf[0] = '\0';  // Better not to leave uninitialized
 
     while (read(STDIN_FILENO, &in, 1) > 0) {
         if (is_non_newline_whitespace(in)) {
