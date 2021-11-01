@@ -43,7 +43,42 @@ char *realloc_whitespace_buffer(char *buf, size_t buf_size, bool larger) {
     return buf;
 }
 
-int main() {
+void print_help() {
+    char *help =
+        "trim: Trim whitespace line-by-line.\n\
+Example usage: echo \"  a string   \" | trim\n\n\
+  --left-only    trim left side only\n\
+  --right-only   trim right side only\n";
+
+    printf("%s", help);
+}
+
+int main(int argc, char const **argv) {
+    if (argc > 2) {
+        fprintf(stderr, "trim: Too many arguments.\n");
+        return EXIT_SUCCESS;
+    }
+
+    // Program-wide flags for trimming left and/or right whitespace.
+    bool ltrim = true;
+    bool rtrim = true;
+
+    // Allow for trimming only left or right-side whitespace, or
+    // printing help
+    if (argc == 2) {
+        if (strcmp(argv[1], "--left-only") == 0) {
+            rtrim = false;
+        } else if (strcmp(argv[1], "--right-only") == 0) {
+            ltrim = false;
+        } else if (strcmp(argv[1], "--help") == 0) {
+            print_help();
+            return EXIT_SUCCESS;
+        } else {
+            fprintf(stderr, "Invalid argument: %s\n.", argv[1]);
+            return EXIT_SUCCESS;
+        }
+    }
+
     // Single char from stdin
     char in;
 
@@ -60,22 +95,36 @@ int main() {
     while (read(STDIN_FILENO, &in, 1) > 0) {
         if (is_non_newline_whitespace(in)) {
             if (at_line_begin) {
-                // Do nothing -- we still haven't hit non-whitespace
-                // in this line.
-                ;
-            } else {
-                // This line has hit some non-whitespace previously,
-                // so add this whitespace to the whitespace buffer for
-                // later (possible) printing
-
-                // But first, we'll check the size of the buffer and
-                // realloc if need be.
-                if (strlen(ws_buf) + 1 >= buf_size) {
-                    buf_size = buf_size + WS_BUF_SIZE * sizeof(char);
-                    ws_buf = realloc_whitespace_buffer(ws_buf, buf_size, true);
+                if (ltrim) {
+                    // Do nothing -- we still haven't hit non-whitespace
+                    // in this line.
+                    ;
+                } else {
+                    // Not trimming left-side whitespace, so print
+                    // anyway.
+                    printf("%s", &in);
                 }
+            } else {
+                if (rtrim) {
+                    // This line has hit some non-whitespace previously,
+                    // so add this whitespace to the whitespace buffer for
+                    // later (possible) printing
 
-                strcat(ws_buf, &in);
+                    // But first, we'll check the size of the buffer and
+                    // realloc if need be.
+                    if (strlen(ws_buf) + 1 >= buf_size) {
+                        buf_size = buf_size + WS_BUF_SIZE * sizeof(char);
+                        ws_buf =
+                            realloc_whitespace_buffer(ws_buf, buf_size, true);
+                    }
+
+                    strcat(ws_buf, &in);
+
+                } else {
+                    // Not trimming right-side whitespace, so print
+                    // anyway.
+                    printf("%s", &in);
+                }
             }
         } else if (in == '\n') {
             // Hit a newline -- print a newline, put a null terminator
