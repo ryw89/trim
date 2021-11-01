@@ -37,7 +37,7 @@ char *realloc_whitespace_buffer(char *buf, size_t buf_size, bool larger) {
     if (buf == NULL) {
         fprintf(stderr,
                 "Failed to resize whitespace buffer; "
-                "exiting.");
+                "exiting.\n");
         exit(EXIT_FAILURE);
     }
     return buf;
