@@ -1,5 +1,6 @@
 # `trim` -- simple whitespace trimmer in C
-This program trims whitespace from the left and right side of an input string from stdin.
+This program trims whitespace from the left and right side of an input
+string from stdin.
 
 Usage:
 
@@ -7,4 +8,12 @@ Usage:
 
 yields:
 
-`"some text"`
+`some text`
+
+There's also options for trimming just left- or right-side whitespace:
+
+`echo "   more text    " | trim --right-only`
+
+yields:
+
+`   more text`
