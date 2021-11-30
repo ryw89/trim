@@ -129,15 +129,15 @@ int main(int argc, char const **argv) {
             }
         } else if (in == '\n') {
             // Hit a newline -- print a newline, put a null terminator
-            // at the beginning of the whitespace buffer, and reset
-            // the at_line_begin flag to true.
+            // at the beginning of the whitespace buffer and reset its
+            // size, and also reset the at_line_begin flag to true.
             printf("\n");
             ws_buf = realloc_whitespace_buffer(ws_buf, 0, false);
             at_line_begin = true;
 
         } else {
-            // Hit a non-whitespace character, so print the whitespace
-            // buffer and put a null terminator at its beginning.
+            // Hit a non-whitespace character, so first print the
+            // whitespace buffer and reset it
             printf("%s", ws_buf);
             ws_buf = realloc_whitespace_buffer(ws_buf, 0, false);
 
