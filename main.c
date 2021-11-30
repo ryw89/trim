@@ -70,7 +70,8 @@ int main(int argc, char const **argv) {
             rtrim = false;
         } else if (strcmp(argv[1], "--right-only") == 0) {
             ltrim = false;
-        } else if (strcmp(argv[1], "--help") == 0) {
+        } else if (strcmp(argv[1], "--help") == 0 ||
+                   strcmp(argv[1], "-h") == 0) {
             print_help();
             return EXIT_SUCCESS;
         } else {
